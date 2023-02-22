@@ -24,6 +24,7 @@ function http<T = any>(
   const successHandler = (res: AxiosResponse<Response<T>>) => {
     if (res.data.status === 'Success' || typeof res.data === 'string')
       return res.data
+
     return Promise.reject(res.data)
   }
 
@@ -40,7 +41,7 @@ function http<T = any>(
 
   return method === 'GET'
     ? request.get(url, { params, signal, onDownloadProgress }).then(successHandler, failHandler)
-    : request.post(url, params, { headers, signall, onDownloadProgress }).then(successHandler, failHandler)
+    : request.post(url, params, { headers, signal, onDownloadProgress }).then(successHandler, failHandler)
 }
 
 export function get<T = any>(
