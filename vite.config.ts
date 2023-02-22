@@ -6,7 +6,7 @@ import { createViteProxy } from './config'
 export default defineConfig((env) => {
   const viteEnv = loadEnv(env.mode, process.cwd()) as unknown as ImportMetaEnv
 
-  const isOpenProxy = viteEnv.VITE_GLOB_HTTP_PROXY === 'Y'
+  const isOpenProxy = viteEnv.VITE_GLOB_HTTP_PROXY === 'N'
 
   return {
     resolve: {
