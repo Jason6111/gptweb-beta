@@ -37,5 +37,5 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
           tags: |
-            jason61/gptweb-bate:${{env.GITHUB_REF_NAME }}
+            jason61/gptweb-bate:${{ env.GITHUB_REF_NAME }}
             jason61/gptweb-bate:latest
