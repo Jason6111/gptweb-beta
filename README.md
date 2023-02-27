@@ -176,7 +176,7 @@ version: '3'
 
 services:
   app:
-    image: jason61/gpt-web:main
+    image: jason61/gpt-web:latest
     ports:
       - 3002:3002
     environment:
