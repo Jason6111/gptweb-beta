@@ -10,6 +10,8 @@ jobs:
   build_docker:
     name: Build docker
     runs-on: ubuntu-latest
+    env:
+      GITHUB_REF_NAME: ${{ env.GITHUB_REF }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
