@@ -1,5 +1,3 @@
-import "virtual:svg-icons-register";
-
 import '@/styles/lib/highlight.less'
 import '@/styles/lib/github-markdown.less'
 import '@/styles/css/global.css'
