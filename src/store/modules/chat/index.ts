@@ -87,19 +87,6 @@ export const useChatStore = defineStore('chat-store', {
       return null
     },
 
-    const language = navigator.language.toLowerCase();
-    if (language.includes('zh')) {
-      // 如果系统语言是中文，将标题改为“新聊天”
-      if (this.history[index].title === 'New Chat') {
-        this.history[index].title = '新聊天';
-      }
-    } else {
-      // 如果系统语言是英文或其他语言，将标题改为“New Chat”
-      if (this.history[index].title === '新聊天') {
-        this.history[index].title = 'New Chat';
-      }
-    }
-    
     addChatByUuid(uuid: number, chat: Chat.Chat) {
       if (!uuid || uuid === 0) {
         if (this.history.length === 0) {
@@ -117,6 +104,18 @@ export const useChatStore = defineStore('chat-store', {
         }
       }
 
+      const language = navigator.language.toLowerCase();
+      if (language.includes('zh')) {
+        // 如果系统语言是中文，将标题改为“新聊天”
+        if (this.history[index].title === 'New Chat') {
+          this.history[index].title = '新聊天';
+        }
+      } else {
+        // 如果系统语言是英文或其他语言，将标题改为“New Chat”
+        if (this.history[index].title === '新聊天') {
+          this.history[index].title = 'New Chat';
+        }
+      },
       const index = this.chat.findIndex(item => item.uuid === uuid)
       if (index !== -1) {
         this.chat[index].data.push(chat)
