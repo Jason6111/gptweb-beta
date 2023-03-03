@@ -141,6 +141,7 @@ docker run --name chatgpt-web \
            -p 3002:3002 \
            -e OPENAI_API_KEY= \
            -e OPENAI_ACCESS_TOKEN= \
+           -e AUTH_SECRET_KEY= \
            -e API_REVERSE_PROXY= \
            -e SOCKS_PROXY_HOST= \
            -e SOCKS_PROXY_PORT= \
@@ -156,6 +157,7 @@ docker run --name chatgpt-web \
            -p 3002:3002 \
            -e OPENAI_API_KEY= \
            -e OPENAI_ACCESS_TOKEN= \
+           -e AUTH_SECRET_KEY= \
            -e API_REVERSE_PROXY= \
            -e SOCKS_PROXY_HOST= \
            -e SOCKS_PROXY_PORT= \
