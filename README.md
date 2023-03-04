@@ -123,6 +123,7 @@ pnpm dev
 
 - `OPENAI_API_KEY` 二选一
 - `OPENAI_ACCESS_TOKEN`  二选一，同时存在时，`OPENAI_API_KEY` 优先
+- `AUTH_SECRET_KEY`  设置登录密码
 - `OPENAI_API_BASE_URL`  可选，设置 `OPENAI_API_KEY` 时可用
 - `API_REVERSE_PROXY` 可选，设置 `OPENAI_ACCESS_TOKEN` 时可用 [参考](#介绍)
 - `API_SOCKS_PROXY` 可选，设置 `SOCKS_PROXY_HOST`，`SOCKS_PROXY_PORT`
@@ -141,12 +142,13 @@ docker run --name chatgpt-web \
            -p 3002:3002 \
            -e OPENAI_API_KEY= \
            -e OPENAI_ACCESS_TOKEN= \
+           -e AUTH_SECRET_KEY= \
            -e OPENAI_API_BASE_URL= \
            -e API_REVERSE_PROXY= \
            -e SOCKS_PROXY_HOST= \
            -e SOCKS_PROXY_PORT= \
            -e TIMEOUT_MS=100000 \
-           jason61/gpt-web:latest
+           jason61/gptweb-beta:latest
 ```
 
 # 新手选这个后台运行
@@ -157,13 +159,14 @@ docker run --name chatgpt-web \
            -p 3002:3002 \
            -e OPENAI_API_KEY= \
            -e OPENAI_ACCESS_TOKEN= \
+					 -e AUTH_SECRET_KEY= \
            -e OPENAI_API_BASE_URL= \
            -e API_REVERSE_PROXY= \
            -e SOCKS_PROXY_HOST= \
            -e SOCKS_PROXY_PORT= \
            -e TIMEOUT_MS=100000 \
            --restart=always \
-           jason61/gpt-web:latest
+           jason61/gptweb-beta:latest
 ```
 
 # 运行地址
@@ -179,7 +182,7 @@ version: '3'
 
 services:
   app:
-    image: jason61/gpt-web:latest # 总是使用 latest ,更新时重新 pull 该 tag 镜像即可
+    image: jason61/gptweb-beta:latest # 总是使用 latest ,更新时重新 pull 该 tag 镜像即可
     ports:
       - 3002:3002
     environment:
@@ -187,6 +190,8 @@ services:
       OPENAI_API_KEY: xxxxxx
       # 二选一
       OPENAI_ACCESS_TOKEN: xxxxxx
+			# 登陆密码
+      AUTH_SECRET_KEY: xxxx
       # API接口地址，可选，设置 OPENAI_API_KEY 时可用
       OPENAI_API_BASE_URL: xxxx
       # 反向代理，可选
