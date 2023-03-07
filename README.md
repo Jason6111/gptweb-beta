@@ -211,11 +211,13 @@ services:
 | --------------------- | ---------------------- | -------------------------------------------------------------------------------------------------- |
 | `PORT`                | 必填                   | 默认 `3002`
 | `AUTH_SECRET_KEY`          | 可选                   | 访问权限密钥                                        |
+| `TIMEOUT_MS`          | 可选                   | 超时时间，单位毫秒                                                                             |
 | `OPENAI_API_KEY`      | `OpenAI API` 二选一    | 使用 `OpenAI API` 所需的 `apiKey` [(获取 apiKey)](https://platform.openai.com/overview)            |
+| `OPENAI_ACCESS_TOKEN` | `Web API` 二选一       | 使用 `Web API` 所需的 `accessToken` [(获取 accessToken)](https://chat.openai.com/api/auth/session) |
 | `OPENAI_API_BASE_URL`   | 可选，`OpenAI API` 时可用 |  `API`接口地址  |
-| `API_REVERSE_PROXY` | 可选，`Web API` 时可用    | `Web API` 反向代理地址 [详情](https://github.com/transitive-bullshit/chatgpt-api#reverse-proxy)   |
-| `API_SOCKS_PROXY` | 可选，`Web API` 时可用    | `Web API` SOCKS代理地址    |
+| `API_REVERSE_PROXY`   | 可选，`Web API` 时可用 | `Web API` 反向代理地址 [详情](https://github.com/transitive-bullshit/chatgpt-api#reverse-proxy)    |
 | `SOCKS_PROXY_HOST`   | 可选，和 `SOCKS_PROXY_PORT` 一起时生效 | Socks代理    |
+| `SOCKS_PROXY_PORT`   | 可选，和 `SOCKS_PROXY_HOST` 一起时生效 | Socks代理端口    |
 
 > 注意: `Railway` 修改环境变量会重新 `Deploy`
 
