@@ -311,6 +311,12 @@ function handleEnter(event: KeyboardEvent) {
       handleSubmit()
     }
   }
+  else {
+    if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault()
+      handleSubmit()
+    }
+  }
 }
 
 function handleStop() {
