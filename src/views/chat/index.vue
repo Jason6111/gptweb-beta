@@ -1,8 +1,7 @@
 <script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NButton, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
@@ -10,7 +9,7 @@ import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useChatStore, usePromptStore } from '@/store'
+import { useChatStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
 
@@ -34,11 +33,6 @@ const conversationList = computed(() => dataSources.value.filter(item => (!item.
 
 const prompt = ref<string>('')
 const loading = ref<boolean>(false)
-
-// 添加PromptStore
-const promptStore = usePromptStore()
-// 使用storeToRefs，保证store修改后，联想部分能够重新渲染
-const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
 
 function handleSubmit() {
   onConversation()
@@ -126,6 +120,7 @@ async function onConversation() {
         }
       },
     })
+    scrollToBottom()
   }
   catch (error: any) {
     const errorMessage = error?.message ?? t('common.wrong')
@@ -276,6 +271,46 @@ async function onRegenerate(index: number) {
   }
 }
 
+function handleExport() {
+  if (loading.value)
+    return
+
+  const d = dialog.warning({
+    title: t('chat.exportImage'),
+    content: t('chat.exportImageConfirm'),
+    positiveText: t('common.yes'),
+    negativeText: t('common.no'),
+    onPositiveClick: async () => {
+      try {
+        d.loading = true
+        const ele = document.getElementById('image-wrapper')
+        const canvas = await html2canvas(ele as HTMLDivElement)
+        const imgUrl = canvas.toDataURL('image/png')
+        const tempLink = document.createElement('a')
+        tempLink.style.display = 'none'
+        tempLink.href = imgUrl
+        tempLink.setAttribute('download', 'chat-shot.png')
+        if (typeof tempLink.download === 'undefined')
+          tempLink.setAttribute('target', '_blank')
+
+        document.body.appendChild(tempLink)
+        tempLink.click()
+        document.body.removeChild(tempLink)
+        window.URL.revokeObjectURL(imgUrl)
+        d.loading = false
+        ms.success(t('chat.exportSuccess'))
+        Promise.resolve()
+      }
+      catch (error: any) {
+        ms.error(t('chat.exportFailed'))
+      }
+      finally {
+        d.loading = false
+      }
+    },
+  })
+}
+
 function handleDelete(index: number) {
   if (loading.value)
     return
@@ -328,31 +363,6 @@ function handleStop() {
   }
 }
 
-// 可优化部分
-// 搜索选项计算，这里使用value作为索引项，所以当出现重复value时渲染异常(多项同时出现选中效果)
-// 理想状态下其实应该是key作为索引项,但官方的renderOption会出现问题，所以就需要value反renderLabel实现
-const searchOptions = computed(() => {
-  if (prompt.value.startsWith('/')) {
-    return promptTemplate.value.filter((item: { key: string }) => item.key.toLowerCase().includes(prompt.value.substring(1).toLowerCase())).map((obj: { value: any }) => {
-      return {
-        label: obj.value,
-        value: obj.value,
-      }
-    })
-  }
-  else {
-    return []
-  }
-})
-// value反渲染key
-const renderOption = (option: { label: string }) => {
-  for (const i of promptTemplate.value) {
-    if (i.value === option.label)
-      return [i.key]
-  }
-  return []
-}
-
 const placeholder = computed(() => {
   if (isMobile.value)
     return t('chat.placeholderMobile')
@@ -393,9 +403,8 @@ onUnmounted(() => {
         id="scrollRef"
         ref="scrollRef"
         class="h-full overflow-hidden overflow-y-auto"
-        :class="[isMobile ? 'p-2' : 'p-4']"
       >
-        <div class="w-full max-w-screen-xl m-auto">
+        <div id="image-wrapper" class="w-full max-w-screen-xl m-auto" :class="[isMobile ? 'p-2' : 'p-4']">
           <template v-if="!dataSources.length">
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
@@ -436,14 +445,18 @@ onUnmounted(() => {
               <SvgIcon icon="ri:delete-bin-line" />
             </span>
           </HoverButton>
-          <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
-            <template #default="{ handleInput, handleBlur, handleFocus }">
-              <NInput
-                v-model:value="prompt" type="textarea" :placeholder="placeholder"
-                :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @keypress="handleEnter"
-                />
-            </template>
-          </NAutoComplete>
+          <HoverButton @click="handleExport">
+            <span class="text-xl text-[#4f555e] dark:text-white">
+              <SvgIcon icon="ri:download-2-line" />
+            </span>
+          </HoverButton>
+          <NInput
+            v-model:value="prompt"
+            type="textarea"
+            :autosize="{ minRows: 1, maxRows: 2 }"
+            :placeholder="placeholder"
+            @keypress="handleEnter"
+          />
           <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
             <template #icon>
               <span class="dark:text-black">
