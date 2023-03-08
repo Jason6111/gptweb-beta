@@ -7,7 +7,7 @@ interface ScrollReturn {
   scrollRef: Ref<ScrollElement>
   scrollToBottom: () => Promise<void>
   scrollToTop: () => Promise<void>
-	scrollToBottomIfAtBottom: () => Promise<void>
+  scrollToBottomIfAtBottom: () => Promise<void>
 }
 
 export function useScroll(): ScrollReturn {
@@ -35,11 +35,11 @@ export function useScroll(): ScrollReturn {
       }
     }
   }
-	
+
   return {
     scrollRef,
     scrollToBottom,
     scrollToTop,
-		scrollToBottomIfAtBottom,
+    scrollToBottomIfAtBottom,
   }
 }
