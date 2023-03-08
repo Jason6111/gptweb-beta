@@ -3,13 +3,14 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { NAutoComplete, NButton, NInput, useDialog } from 'naive-ui'
+import html2canvas from 'html2canvas'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
 import { useCopyCode } from './hooks/useCopyCode'
 import { HoverButton, SvgIcon } from '@/components/common'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
-import { useChatStore, usePromptStore  } from '@/store'
+import { useChatStore, usePromptStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
 
@@ -17,13 +18,14 @@ let controller = new AbortController()
 
 const route = useRoute()
 const dialog = useDialog()
+const ms = useMessage()
 
 const chatStore = useChatStore()
 
 useCopyCode()
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
-const { scrollRef, scrollToBottom } = useScroll()
+const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
 
 const { uuid } = route.params as { uuid: string }
 
@@ -37,7 +39,6 @@ const loading = ref<boolean>(false)
 const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
-
 
 function handleSubmit() {
   onConversation()
@@ -125,6 +126,7 @@ async function onConversation() {
         }
       },
     })
+    scrollToBottom()
   }
   catch (error: any) {
     const errorMessage = error?.message ?? t('common.wrong')
@@ -275,6 +277,48 @@ async function onRegenerate(index: number) {
   }
 }
 
+function handleExport() {
+  if (loading.value)
+    return
+
+  const d = dialog.warning({
+    title: t('chat.exportImage'),
+    content: t('chat.exportImageConfirm'),
+    positiveText: t('common.yes'),
+    negativeText: t('common.no'),
+    onPositiveClick: async () => {
+      try {
+        d.loading = true
+        const ele = document.getElementById('image-wrapper')
+        const canvas = await html2canvas(ele as HTMLDivElement, {
+          useCORS: true,
+        })
+        const imgUrl = canvas.toDataURL('image/png')
+        const tempLink = document.createElement('a')
+        tempLink.style.display = 'none'
+        tempLink.href = imgUrl
+        tempLink.setAttribute('download', 'chat-shot.png')
+        if (typeof tempLink.download === 'undefined')
+          tempLink.setAttribute('target', '_blank')
+
+        document.body.appendChild(tempLink)
+        tempLink.click()
+        document.body.removeChild(tempLink)
+        window.URL.revokeObjectURL(imgUrl)
+        d.loading = false
+        ms.success(t('chat.exportSuccess'))
+        Promise.resolve()
+      }
+      catch (error: any) {
+        ms.error(t('chat.exportFailed'))
+      }
+      finally {
+        d.loading = false
+      }
+    },
+  })
+}
+
 function handleDelete(index: number) {
   if (loading.value)
     return
@@ -394,9 +438,8 @@ onUnmounted(() => {
         id="scrollRef"
         ref="scrollRef"
         class="h-full overflow-hidden overflow-y-auto"
-        :class="[isMobile ? 'p-2' : 'p-4']"
       >
-        <div class="w-full max-w-screen-xl m-auto">
+        <div id="image-wrapper" class="w-full max-w-screen-xl m-auto" :class="[isMobile ? 'p-2' : 'p-4']">
           <template v-if="!dataSources.length">
             <div class="flex items-center justify-center mt-4 text-center text-neutral-300">
               <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
