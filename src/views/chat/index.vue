@@ -18,7 +18,6 @@ let controller = new AbortController()
 
 const route = useRoute()
 const dialog = useDialog()
-const ms = useMessage()
 
 const chatStore = useChatStore()
 
