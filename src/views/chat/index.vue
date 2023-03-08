@@ -119,7 +119,7 @@ async function onConversation() {
               requestOptions: { prompt: message, options: { ...options } },
             },
           )
-          scrollToBottom()
+          scrollToBottomIfAtBottom()
         }
         catch (error) {
           //
