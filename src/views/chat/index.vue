@@ -517,7 +517,7 @@ onUnmounted(() => {
            <template #default="{ handleInput, handleBlur, handleFocus }">
              <NInput
                v-model:value="prompt" type="textarea" :placeholder="placeholder"
-               :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @keypress="handleEnter"
+               :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @focus="onInputFocus" @blur="onInputBlur" @keypress="handleEnter"
              />
            </template>
          </NAutoComplete>
