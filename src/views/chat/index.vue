@@ -25,7 +25,7 @@ const chatStore = useChatStore()
 useCopyCode()
 const { isMobile } = useBasicLayout()
 const { addChat, updateChat, updateChatSome, getChatByUuidAndIndex } = useChat()
-const { scrollRef, scrollToBottom, scrollToBottomIfAtBottom } = useScroll()
+const { scrollRef, scrollToBottom } = useScroll()
 
 const { uuid } = route.params as { uuid: string }
 
@@ -40,6 +40,7 @@ const usingContext = ref<boolean>(true)
 const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
+const actionVisible = ref<boolean>(true)
 
 function handleSubmit() {
   onConversation()
@@ -120,7 +121,7 @@ async function onConversation() {
               requestOptions: { prompt: message, options: { ...options } },
             },
           )
-          scrollToBottomIfAtBottom()
+          scrollToBottom()
         }
         catch (error) {
           //
@@ -171,10 +172,10 @@ async function onConversation() {
         requestOptions: { prompt: message, options: { ...options } },
       },
     )
+    scrollToBottom()
   }
   finally {
     loading.value = false
-    scrollToBottom()
   }
 }
 
@@ -398,20 +399,20 @@ const renderOption = (option: { label: string }) => {
 
 function toggleUsingContext() {
   usingContext.value = !usingContext.value
-  if (usingContext.value) {
-    dialog.info({
-      title: t('chat.usingContext'),
-      content: t('chat.turnOnContext'),
-      positiveText: t('common.yes'),
-    })
-  }
-  else {
-    dialog.info({
-      title: t('chat.usingContext'),
-      content: t('chat.turnOffContext'),
-      positiveText: t('common.yes'),
-    })
-  }
+  if (usingContext.value)
+    ms.success(t('chat.turnOnContext'))
+  else
+    ms.warning(t('chat.turnOffContext'))
+}
+
+function onInputFocus() {
+  if (isMobile.value)
+    actionVisible.value = false
+}
+
+function onInputBlur() {
+  if (isMobile.value)
+    actionVisible.value = true
 }
 
 const placeholder = computed(() => {
@@ -433,7 +434,7 @@ const wrapClass = computed(() => {
 const footerClass = computed(() => {
   let classes = ['p-4']
   if (isMobile.value)
-    classes = ['sticky', 'left-0', 'bottom-0', 'right-0', 'p-2', 'pr-4', 'overflow-hidden']
+    classes = ['sticky', 'left-0', 'bottom-0', 'right-0', 'p-2', 'overflow-hidden']
   return classes
 })
 
@@ -495,6 +496,7 @@ onUnmounted(() => {
     <footer :class="footerClass">
       <div class="w-full max-w-screen-xl m-auto">
         <div class="flex items-center justify-between space-x-2">
+        <div v-if="actionVisible" class="flex items-center space-x-2">
           <HoverButton @click="handleClear">
             <span class="text-xl text-[#4f555e] dark:text-white">
               <SvgIcon icon="ri:delete-bin-line" />
@@ -510,14 +512,15 @@ onUnmounted(() => {
               <SvgIcon icon="ri:chat-history-line" />
             </span>
           </HoverButton>
-          <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
-            <template #default="{ handleInput, handleBlur, handleFocus }">
-              <NInput
-                v-model:value="prompt" type="textarea" :placeholder="placeholder"
-                :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @keypress="handleEnter"
-              />
-            </template>
-          </NAutoComplete>
+        </div>
+        <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
+           <template #default="{ handleInput, handleBlur, handleFocus }">
+             <NInput
+               v-model:value="prompt" type="textarea" :placeholder="placeholder"
+               :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @keypress="handleEnter"
+             />
+           </template>
+         </NAutoComplete>
           <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
             <template #icon>
               <span class="dark:text-black">
