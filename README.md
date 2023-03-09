@@ -14,7 +14,7 @@
 2. `ChatGPTUnofficialProxyAPI` 使用非官方代理服务器访问 `ChatGPT` 的后端`API`，绕过`Cloudflare`（使用真实的的`ChatGPT`，非常轻量级，但依赖于第三方服务器，并且有速率限制）
 
 切换方式：
-1. 进入 `service/.env` 文件
+1. 进入 `service/.env.example` 文件，复制内容到 `service/.env`` 文件
 2. 使用 `OpenAI API Key` 请填写 `OPENAI_API_KEY` 字段 [(获取 apiKey)](https://platform.openai.com/overview)
 3. 使用 `Web API` 请填写 `OPENAI_ACCESS_TOKEN` 字段 [(获取 accessToken)](https://chat.openai.com/api/auth/session)
 4. 同时存在时以 `OpenAI API Key` 优先
@@ -110,7 +110,7 @@ pnpm start
 ```shell
 pnpm dev
 ```
-
+参考根目录下 `.env.example` 文件内容创建 `.env` 文件，修改 `VITE_APP_API_BASE_URL` 为你的实际后端接口地址
 ## 打包
 
 ### 使用 Docker
